@@ -46,6 +46,12 @@ namespace ToDoListProject.DataProviders
             }
         }
 
+        public static void SetDefaultProjects()
+        {
+            Db.ProjectsDto.Add(new Project { ProjectName = "Home"});
+            Db.ProjectsDto.Add(new Project { ProjectName = "Work" });
+        }
+
         public static string GetProjectNameById(int id)
         {
                 var model = Db.ProjectsDto.FirstOrDefault(x=>x.ProjectId==id);

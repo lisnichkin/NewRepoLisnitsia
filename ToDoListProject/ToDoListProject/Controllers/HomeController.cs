@@ -18,17 +18,15 @@ namespace ToDoListProject.Controllers
         }
         public ActionResult Index()
         {
+            var projects = DataProvider.GetAllProjects();
+            if (projects.Count == 0)
+            {
+                DataProvider.SetDefaultProjects();
+            }
             var allTasks = DataProvider.GetAllTasks();
             var gridModel = _grid.GetModel(allTasks);
             return View(gridModel);
         }
-
-        //public ActionResult About()
-        //{
-        //    ViewBag.Message = "Your app description page.";
-
-        //    return View();
-        //}
 
         public ActionResult SaveTask(string taskName,int projectId)
         {
