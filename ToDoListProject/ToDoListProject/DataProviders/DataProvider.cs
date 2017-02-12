@@ -50,6 +50,7 @@ namespace ToDoListProject.DataProviders
         {
             Db.ProjectsDto.Add(new Project { ProjectName = "Home"});
             Db.ProjectsDto.Add(new Project { ProjectName = "Work" });
+            Db.SaveChanges();
         }
 
         public static string GetProjectNameById(int id)
