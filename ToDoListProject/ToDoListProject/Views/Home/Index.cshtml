@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "ToDoList";
+}
+
+<div id="cap-view" class="demo-section k-content">
+    <table>
+        <tr>
+            <td style="width:200px"><input id="textBoxId" type="text" placeholder="Sample To Do"></td>
+            <td style="width:300px">
+                <div id="cap" class="black-cap"></div>
+                    @(Html.Kendo().DropDownList()
+                .Name("color")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .Events(e => e.Change("change"))
+                .BindTo(Model.ProjectItems)
+          .Value("1")
+          .HtmlAttributes(new { style = "width: 100%",id="ddlProjects" }))</td>
+        </tr>
+   </table>
+</div>
+    <div>
+        <button id="CreateButton" onclick="saveNewTask()">Create</button>
+    </div>
+<div style="margin-top: 20px">
+    <table id="mainTable">
+        @foreach (var item in Model.TaskGridItem)
+        {
+            <tr>
+                <td class="ids" id="taskId" style="display:none;">@item.Id</td>
+                <td id="checkBoxes" style="width: 40px;"><input type="checkbox"/></td>
+                <td class="taskNameClass" id="taskNames" style="width: 150px;">@item.TaskName</td>
+                <td class="ProjectNameClass" id="ProjectNames" style="width: 150px;">@item.ProjectName</td>
+                <td ><input class="editButton" id="editBut" type="button" value="Edit"/></td>
+                <td ><input class="removebutton" id="deleteBut" type="button" value="Delete"/></td>
+            </tr>
+        }
+    </table>
+    
+    <div id="example">
+        <div id="dialog">
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    function change() {
+        var value = $("#color").val();
+    };
+
+    $(document).ready(function() {
+        $("#get").click(function() {
+            var color = $("#color").data("kendoDropDownList"),
+                size = $("#size").data("kendoDropDownList");
+        });
+    });
+
+    function saveNewTask() {
+        var projectType =  parseInt($("#ddlProjects").val());
+        var taskName = $("#textBoxId").val();
+        var url = "Home/SaveTask";
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: { taskName: taskName, projectId: projectType },
+            contentType: "application/json; charset=utf-8",
+            success: function(result) {
+
+                alert("Done");
+                addTask(result.Id);
+            }
+        });
+    };
+
+    function addTask(id) {
+        var taskName = $("#textBoxId").val();
+        var projectName = $("#ddlProjects").data("kendoDropDownList").text();
+        $('#mainTable').append('<tr><td class="ids" id="taskId" style="display:none;">' + id + '</td><td id="checkBoxes" style="width: 40px;"><input type="checkbox"/></td><td id="taskNames" style="width: 150px;">' + taskName + '</td><td id="ProjectNames" style="width: 150px;">' + projectName + '</td><td ><input id="editBut" type="button" value="Edit"/></td><td ><input class="removebutton" id="deleteBut" type="button" value="Delete"/></td></tr>');
+    };
+
+    //function deleteTask(e) {
+    //    var id = 1;
+  
+
+    $(document).on('click', 'input.removebutton', function () {
+            var td = $(this).parent();
+            var tr = td.parent();
+            var id = parseInt(tr.find(".ids").html());
+            var url = "Home/DeleteTask";
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: { taskId: id},
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    alert("Deleted");
+                }
+            });
+            $(this).closest('tr').remove();
+    });
+    $(document).on('click', 'input.editButton', function () {
+        var dialog = $('#dialog');
+        var td = $(this).parent();
+        var tr = td.parent();
+        var taskName = tr.find(".taskNameClass").html();
+        var selectedString = "<select id='ddlPr'><option value='1'>Home</option><option value='2'>Work</option></select> ";
+        var id = parseInt(tr.find(".ids").html());
+       
+        function onClose() {
+        }
+        function onSave() {
+            var projectType = parseInt($("#ddlPr").val()); 
+            var taskName = $("#textTaskName").val();
+            tr.find(".taskNameClass").html(taskName);
+            tr.find(".ProjectNameClass").html($("#ddlPr option:selected").text());
+            var url = "Home/EditTask";
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: { taskName: taskName, projectId: projectType,taskId:id },
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    alert("Update done");
+                }
+            });
+            dialog.data("kendoDialog").close();
+        }
+
+        dialog.kendoDialog({
+            width: "400px",
+            title: "Software Update",
+            closable: false,
+            visible: true,
+            modal: false,
+            content: "<p>Edit Task</p><input id='textTaskIdD' style='display:none' value='" + id + "' type='text' placeholder='Sample To Do'><input id='textTaskName' value='" + taskName + "' type='text' placeholder='Sample To Do'>" + selectedString,
+            actions: [
+                { text: 'Cancel' },
+                { text: 'Save', primary: true,action:onSave }],
+            close: onClose
+        });
+        dialog.data("kendoDialog").open();
+    });;
+
+</script>
